@@ -20,14 +20,17 @@ export enum TPayment {
 }
 
 export interface IBuyer {
-    payment?: TPayment;
-    email?: string;
-    phone?: string;
-    address?: string;
+    payment: TPayment;
+    email: string;
+    phone: string;
+    address: string;
   }
 
 export interface IBuyRequest {
-    bayer: IBuyer;
+    payment: TPayment;
+    email: string;
+    phone: string;
+    address: string;
     total: number;
     items: string[];
 }

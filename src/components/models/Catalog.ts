@@ -1,8 +1,8 @@
 import { IProduct } from "../../types/index.ts";
 
 export class Catalog {
-  _products: IProduct[];
-  _currentProduct: IProduct | null
+  private _products: IProduct[];
+  private _currentProduct: IProduct | null
 
   constructor() {
     this._products = [];

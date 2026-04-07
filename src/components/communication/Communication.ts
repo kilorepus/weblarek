@@ -1,19 +1,19 @@
 import { IApi, IProductsInfo, IBuyRequest, IBuyResponse } from "../../types/index.ts";
 
 export class Communication {
-  _api: IApi;
+  private _api: IApi;
 
   constructor(api: IApi) {
     this._api = api;
   }
 
   async getProducts(): Promise<IProductsInfo> {
-    const userData: IProductsInfo = await this._api.get("/product/");
+    const userData = await this._api.get<IProductsInfo>("/product/");
     return userData;
   }
 
   async post(request: IBuyRequest): Promise<IBuyResponse> {
-    const buyResponse: IBuyResponse = await this._api.post("/order/", request);
+    const buyResponse = await this._api.post<IBuyResponse>("/order/", request);
     return buyResponse;
   }
 }  

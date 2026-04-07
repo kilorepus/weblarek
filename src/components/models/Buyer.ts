@@ -1,33 +1,31 @@
 import { TPayment, IBuyer } from "../../types/index.ts";
 
 export class Buyer {
-  _payment?: TPayment;
-  _email?: string;
-  _phone?: string;
-  _address?: string;
-
+  private _payment: TPayment | null;
+  private _email: string;
+  private _phone: string;
+  private _address: string;
 
   constructor(){
+    this._email = "";
+    this._phone = "";
+    this._address = "";
+    this._payment = null;
   }
 
-  getBayerInfo(): IBuyer {
-    return { 
-      payment: this._payment,
-      email: this._email,
-      phone: this._phone,
-      address: this._address
-    }
+  getBayerInfo(): Buyer {
+    return { ...this };
   }
  
   clear() {
-    this._payment = undefined;
-    this._email = undefined;
-    this._phone = undefined;
-    this._address = undefined;
+    this._payment = null;
+    this._email = "";
+    this._phone = "";
+    this._address = "";
   }
  
   validateAddress(): string {
-    if (this._address === undefined) 
+    if (this._address.length === 0) 
         return "адрес не введен";
     else return ""
   }
@@ -39,13 +37,13 @@ export class Buyer {
   }
 
   validateEmail(): string {
-    if (this._email === undefined) 
+    if (this._email.length === 0) 
         return "email не введен";
     else return ""
   }
 
   validatePhone(): string {
-    if (this._phone === undefined) 
+    if (this._phone.length === 0) 
         return "телефон не введен";
     else return ""
   }
