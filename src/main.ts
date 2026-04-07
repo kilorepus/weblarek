@@ -40,8 +40,10 @@ console.log("очистка корзины: ", basketModel.getProducts())
 
 const buyerModel = new Buyer();
 
+console.log("валидация данных адреса: ", buyerModel.validateAddress())
 buyerModel.setAddress("МСК, набережная Чижика")
 console.log("сохранение адреса покупателя: ", buyerModel.getBayerInfo())
+console.log("валидация способа оплаты: ", buyerModel.validatePayment())
 buyerModel.setPayment(TPayment.Card)
 console.log("сохранение способа оплаты покупателя: ", buyerModel.getBayerInfo())
 console.log("валидация данных адреса: ", buyerModel.validateAddress())

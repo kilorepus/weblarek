@@ -13,8 +13,13 @@ export class Buyer {
     this._payment = null;
   }
 
-  getBayerInfo(): Buyer {
-    return { ...this };
+  getBayerInfo(): IBuyer {
+    return {
+      email: this._email,
+      phone: this._phone, 
+      address: this._address, 
+      payment: this._payment
+    };
   }
  
   clear() {
@@ -25,25 +30,25 @@ export class Buyer {
   }
  
   validateAddress(): string {
-    if (this._address.length === 0) 
+    if (!this._address) 
         return "адрес не введен";
     else return ""
   }
 
   validatePayment(): string {
-    if (this._payment === undefined) 
-        return "способа оплаты не введен";
+    if (!this._payment) 
+        return "способ оплаты не введен";
     else return ""
   }
 
   validateEmail(): string {
-    if (this._email.length === 0) 
+    if (!this._email) 
         return "email не введен";
     else return ""
   }
 
   validatePhone(): string {
-    if (this._phone.length === 0) 
+    if (!this._phone)
         return "телефон не введен";
     else return ""
   }
