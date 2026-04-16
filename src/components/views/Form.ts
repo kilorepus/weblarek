@@ -10,6 +10,8 @@ interface IFormState {
 export class Form<T> extends Component<T | IFormState> {
   protected submitButtonElement: HTMLButtonElement;
   protected errorsElement: HTMLElement;
+  protected timeoutId = 0;
+  protected validationDelay = 500;
 
   constructor(protected container: HTMLFormElement, protected events: IEvents) {
     super(container);
@@ -18,10 +20,13 @@ export class Form<T> extends Component<T | IFormState> {
     this.errorsElement = ensureElement<HTMLElement>('.form__errors', this.container);
 
     this.container.addEventListener('input', (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      const field = target.name as keyof T;
-      const value = target.value;
-      this.onInputChange(field, value);
+      clearTimeout(this.timeoutId); // Сброс старой проверки
+      this.timeoutId = window.setTimeout(() => {
+        const target = e.target as HTMLInputElement;
+        const field = target.name as keyof T;
+        const value = target.value;
+        this.onInputChange(field, value);
+      }, this.validationDelay);
     });
 
     this.container.addEventListener('submit', (e: Event) => {
@@ -38,6 +43,7 @@ export class Form<T> extends Component<T | IFormState> {
   }
 
   set valid(value: boolean) {
+    console.log("valid: ", value);
     this.submitButtonElement.disabled = !value;
   }
 

@@ -29,6 +29,7 @@ export class Buyer {
     this._phone = "";
     this._address = "";
     this.events.emit('buyer:changed');
+//    this.events.emit('buyer:changed', {field: "address"});
   }
  
   validateAddress(): string {
@@ -57,19 +58,19 @@ export class Buyer {
 
  setAddress(address: string) {
   this._address = address;
-  this.events.emit('buyer:changed');
+  this.events.emit('buyer:changed', {field: "address"});
  }
  setPayment(payment: TPayment) {
   this._payment = payment;
-  this.events.emit('buyer:changed');
+  this.events.emit('buyer:changed', {field: "payment"});
  }
  setEmail(email: string) {
   this._email = email;
-  this.events.emit('buyer:changed');
+  this.events.emit('buyer:changed', {field: "email"});
  }
  setPhone(phone: string) {
   this._phone = phone;
-  this.events.emit('buyer:changed');
+  this.events.emit('buyer:changed', {field: "phone"});
  }
  
 }

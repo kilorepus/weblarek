@@ -17,9 +17,9 @@ export class Order extends Form<IOrderDeliveryForm> {
     super(container, events)
 
 
-    this.cardElement = ensureElement<HTMLButtonElement>('card', this.container);
-    this.cashElement = ensureElement<HTMLButtonElement>('cash', this.container);
-    this.addressElement = ensureElement<HTMLInputElement>('address', this.container);
+    this.cardElement = ensureElement<HTMLButtonElement>('button[name="card"]', this.container);
+    this.cashElement = ensureElement<HTMLButtonElement>('button[name="cash"]', this.container);
+    this.addressElement = ensureElement<HTMLInputElement>('input[name="address"]', this.container);
     
         this.cardElement.addEventListener('click', () => {
             this.cardElement.classList.add('button_alt-active')
@@ -36,5 +36,15 @@ export class Order extends Form<IOrderDeliveryForm> {
   
   set address(value: string) {
     this.addressElement.value = value
+  }
+
+  set payment(payment: TPayment) {
+    if (payment == TPayment.Card) {
+      this.cardElement.classList.add('button_alt-active')
+      this.cashElement.classList.remove('button_alt-active')
+    } else if (payment == TPayment.Cash) {
+      this.cashElement.classList.add('button_alt-active')
+      this.cardElement.classList.remove('button_alt-active')
+    }
   }
 }
