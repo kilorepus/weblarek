@@ -45,3 +45,10 @@ export interface IProductsInfo {
     items: IProduct[];
 }
 
+export interface ICardActions {
+    onClick: (event: MouseEvent) => void;
+}
+
+export interface ISuccessActions {
+    onClick: () => void;
+  }

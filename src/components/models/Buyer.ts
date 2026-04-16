@@ -1,4 +1,5 @@
 import { TPayment, IBuyer } from "../../types/index.ts";
+import { IEvents } from "../base/Events";
 
 export class Buyer {
   private _payment: TPayment | null;
@@ -6,7 +7,7 @@ export class Buyer {
   private _phone: string;
   private _address: string;
 
-  constructor(){
+  constructor(protected events: IEvents){
     this._email = "";
     this._phone = "";
     this._address = "";
@@ -27,6 +28,7 @@ export class Buyer {
     this._email = "";
     this._phone = "";
     this._address = "";
+    this.events.emit('buyer:changed');
   }
  
   validateAddress(): string {
@@ -55,15 +57,19 @@ export class Buyer {
 
  setAddress(address: string) {
   this._address = address;
+  this.events.emit('buyer:changed');
  }
  setPayment(payment: TPayment) {
   this._payment = payment;
+  this.events.emit('buyer:changed');
  }
  setEmail(email: string) {
   this._email = email;
+  this.events.emit('buyer:changed');
  }
  setPhone(phone: string) {
   this._phone = phone;
+  this.events.emit('buyer:changed');
  }
  
 }

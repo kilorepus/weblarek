@@ -192,3 +192,306 @@ Presenter - презентер содержит основную логику п
 Методы:
 `getProducts(): IProductsInfo` - получает с сервера объект с массивом товаров
 `post(request: IBuyRequest): IBuyResponse` - отправка на сервер данные о покупателе и выбранных товарах и возврат информации о покупке
+
+#### «Слой View»
+все классы данного слоя унаследованы от класса Component в дженерик которого передается интерфей, 
+определяющий поля для изменения через сеттер
+
+#### класс корзина со счетчиком в заголовке
+Отображает количество товаров в корзине
+
+Интерфейс для передачи в Component
+IHeaderData {
+  counter: number;
+}
+
+Конструктор принимает брокер сообщений для генерации события нажатия на корзину и контейнер с компонентом
+`constructor(protected events: IEvents, container: HTMLElement)`
+
+Поля класса:  
+`busketButton: HTMLButtonElement;` - кнопка для определения события нажатия на корзину
+`counterElement: HTMLElement;` - количество товаров в корзине для отображения на иконке
+
+Методы:
+`set counter(value: number);` - сеттер количества товаров
+
+
+#### класс список карточек товаров
+class IGalleryData {
+  catalog: HTMLElement[];
+}
+
+Конструктор принимает контейнер с компонентом и обработчик для генерации события при нажатии на карточку
+`constructor(container: HTMLElement, actions?: ICardActions)`
+
+Поля класса:  
+`catalogElement: HTMLElement;` - массив карточек товара
+
+Методы:
+`set catalog(items: HTMLElement[]);` - сеттер списка товаров
+
+#### класс модального окна
+Модальное окно, в котором будут отображаться:
+- выделенная карточка товара
+- корзина с товарами
+- сообщение об успешной отправке заказа
+
+interface IModalData {
+	content: HTMLElement;
+}
+
+Конструктор принимает брокер сообщений для генерации события открытия и закрытия модального окна
+`constructor(container: HTMLElement, protected events: IEvents)`
+
+Поля класса:  
+`contentElement: HTMLElement;` - элемент для размещения контента в окне
+`closeButton: HTMLButtonElement;` - кнопка закрытия окна
+
+Методы:
+`set content(element: HTMLElement);` - сеттер контента окна
+
+#### класс окно успешно отправленного заказа
+Сожержит стоимость заказа
+
+interface ISuccess {
+  totalPrice: number;
+}
+
+Конструктор принимает контейнер с компонентом и обработчик для генерации события при нажатии на кнопку закрытия
+`constructor(container: HTMLElement, actions?: ICardActions)`
+
+Поля класса:  
+`totalPriceElement: HTMLElement;` - общая стоимость товаров заказа
+`closeButtonElement: HTMLButtonElement;` - кнопка закрытия окна
+
+Методы:
+`set totalPrice(value: number)` - сеттер полной стоимости заказа
+
+#### класс корзина с заказом
+содержит список товаров и сумму заказа
+
+export interface IBasket {
+  items: HTMLElement[];
+  total: number;
+}
+
+Конструктор принимает брокер сообщений для генерации события нажатия на кнопку оформления заказа и контейнер с компонентом
+`constructor(protected events: IEvents, container: HTMLElement)`
+
+Поля класса:  
+`basketListElement: HTMLElement;` - список товаров в корзине
+`basketPriceElement: HTMLElement;` - полная стоимость товаров в корзине
+`buttonElement: HTMLButtonElement;` - кнопка оформления заказа
+
+Методы:
+`set items(items: HTMLElement[])` - сеттер товаров в корзине
+`set total(total: number)` - сеттер стоимости товаров в корзине
+
+#### базовый класс формы
+от данного класса наследуются другие классы форм
+
+interface IFormState {
+  valid: boolean;
+  errors: string[];
+}
+
+Конструктор принимает брокер сообщений для генерации события submit и контейнер с компонентом
+`constructor(protected container: HTMLFormElement, protected events: IEvents)`
+
+Поля класса:  
+`submitButtonElement: HTMLButtonElement;` - кнопка submit
+`errorsElement: HTMLElement;` - ошибки валидации
+
+Методы:
+`set valid(value: boolean)` - сеттер валидности данных формы
+`set errors(value: string)` - сеттер ошибок валидации формы
+
+#### 4.1 форма для ввода "адреса и способа оплаты"
+
+interface IOrderDeliveryForm {
+  payment: TPayment,
+  address: string,
+}
+
+Конструктор принимает брокер сообщений для генерации события submit и контейнер с компонентом
+`constructor(protected container: HTMLFormElement, protected events: IEvents)`
+ 
+Поля класса:  
+`cardElement: HTMLButtonElement;` - вариант оплаты картой
+`cashElement: HTMLButtonElement;` - вариант оплаты наличными
+`addressElement: HTMLInputElement;` - адрес
+
+Методы:
+`set address(value: string)` - сеттер адреса
+
+#### 4.2 клас форма для ввода "телефона и емейла"
+export interface IContacts {
+  phone: string;
+  email: string;
+}
+
+Конструктор принимает брокер сообщений для генерации события submit и контейнер с компонентом
+`constructor(protected container: HTMLFormElement, protected events: IEvents)`
+ 
+Поля класса:  
+`emailElement: HTMLInputElement;` - email
+`phoneElement: HTMLInputElement;` - телефон
+
+Методы:
+`set email(value: string)` - сеттер email
+`set phone(value: string)` - сеттер телефона
+
+#### класс карточки
+базовый клас для других вариантов отображения данных карточки
+
+interface ICard {
+  title: string;
+  price: number;
+}
+
+Конструктор принимает контейнер с компонентом
+`constructor(container: HTMLElement)`
+ 
+Поля класса:  
+`titleElement: HTMLElement;` - название
+`priceElement: HTMLElement;` - цена
+
+Методы:
+`set title(title: string)` - сеттер названия
+`set price(value: number | null)` - сеттер стоимости
+
+#### 5.1 класс карточка в модальном окне
+Отображение выбранной карточки в галерее
+Унаследован от базового класса карточки и расширяет её дополнительными полями
+
+interface TCardPreview {
+  description: string;
+  image: string;
+  category: string;
+}
+
+Конструктор принимает брокер сообщений для генерации события submit и контейнер с компонентом
+`constructor(container: HTMLElement, protected events: IEvents)`
+ 
+Поля класса:  
+`imageElement: HTMLImageElement;` - картинка товара
+`categoryElement: HTMLElement;` - категория
+`textElement: HTMLElement;` - описание
+`buttonElement: HTMLButtonElement;` - копка покупти товара
+
+Методы:
+`set category(value: string)` - сеттер категории
+`set image(value: string)` - сеттер картинки
+`set description(description: string)` - сеттер описания
+
+#### 5.2 карточка в каталоге
+class CardCatalog {
+cardCategory
+cardImage
+}
+#### 5.3 карточка в корзине 
+class CardBasket {
+  itemIndex
+  cardButtonDeleteFromBasket
+}
+
+#### описание событий, которые генерируются в приложении
+#### в модели данных
+Инициируется при изменении списка товаров каталога
+`catalog:changed`
+
+Инициируется при выделении товара каталога
+`selectedProduct:changed`
+
+Инициируется при изменении списка товаров в корзине чтобы перерисовать её
+`basket:changed`
+
+Инициируется при изменении данных покупателя
+`buyer:changed`
+
+#### в модели представлениях
+Инициируется при клике на карточку товара 
+`card:select`
+
+Инициируется при нажатии кнопки покупки товара 
+`card:addBasket`
+
+Инициируется при клике на кнопку "корзина" и открывает модальное окно корзины с товарами
+`basket:open`
+
+
+
+
+/*
+    Инициируется при клике на кнопку "В корзину" на карточке StoreItemPreview
+    В AppState добавляет товар в корзину, обновляет счётчик на корзине
+    в классе Page
+    Делает поле selected на товаре true для отключения кнопки, чтобы больше
+    товар добавить было нельзя
+*/
+'card:toBasket'
+
+/*
+    Инициируется при клике на кнопку удаления товара в корзине
+    Удаляет товар из массива basket в классе AppData
+    Обновляет счётчик корзины на странице
+    Обновляет поле selected на товаре, делая его false
+    Обновляет сумму заказа в корзине
+    Обвновляет порядковые номера в списке корзины
+*/
+'basket:delete'
+
+/*
+    Инициируется при клике на кнопку "Оформить" в корзине
+    Открывает окно с формой для заполнения адреса и способа оплаты
+    Используемый класс Order
+*/
+'basket:order'
+
+/*
+    Инициируется при нажатии на кнопку "Далее" на стадии заполнения адреса и
+    способа оплаты в окошке Order
+*/
+'order:submit'
+
+/*
+    Инициируется при нажатии на кнопку "Оплатить" на стадии заполнения телефона
+    и электронной почты в окошке Contacts
+*/
+'contacts:submit'
+
+/*
+    Инициируется при вводе данных в форму заказа Order и контактов Contacts
+    Начинает процесс валидации формы
+*/
+'orderInput:change'
+
+/*
+    Инициируется при вводе данных в форму окошка Order и совершает
+    процесс валидации формы, возвращает ошибки формы
+*/
+'orderFormErrors:change'
+
+/*
+    Инициируется при вводе данных в форму окошка Contacts и совершает
+    процесс валидации формы, возвращает ошибки формы
+*/
+'contactsFormErrors:change'
+
+/*
+    Инициируется при успешном ответе сервера при оплате товара
+    Открывает модальное окно сообщающее об успешной оплате
+*/
+'order:success'
+
+/*
+    Инициируется при клике на кнопку закрытия модального окна
+    или при клике на свободное место вокруг модального окна
+*/
+'modal:close'
+
+#### Презентер
+Так как у приложения только одна страница, достаточно одного презентера, 
+который будет отвечать за логику работы этой страницы. 
+Код «Презентера» реализован в основном скрипте приложения main.ts.
+
