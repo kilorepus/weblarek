@@ -29,7 +29,6 @@ export class Buyer {
     this._phone = "";
     this._address = "";
     this.events.emit('buyer:changed');
-//    this.events.emit('buyer:changed', {field: "address"});
   }
  
   validateAddress(): string {

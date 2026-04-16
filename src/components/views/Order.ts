@@ -22,14 +22,10 @@ export class Order extends Form<IOrderDeliveryForm> {
     this.addressElement = ensureElement<HTMLInputElement>('input[name="address"]', this.container);
     
         this.cardElement.addEventListener('click', () => {
-            this.cardElement.classList.add('button_alt-active')
-            this.cashElement.classList.remove('button_alt-active')
             this.onInputChange('payment', 'card')
         })
 
         this.cashElement.addEventListener('click', () => {
-            this.cashElement.classList.add('button_alt-active')
-            this.cardElement.classList.remove('button_alt-active')
             this.onInputChange('payment', 'cash')
         })
   }

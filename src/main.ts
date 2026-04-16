@@ -1,5 +1,5 @@
 import './scss/styles.scss';
-import { API_URL } from './utils/constants';
+import { API_URL, CDN_URL } from './utils/constants';
 import { cloneTemplate } from './utils/utils.ts';
 import { Catalog } from "./components/models/Catalog";
 import { Basket } from "./components/models/Basket.ts";
@@ -41,12 +41,16 @@ const successTemplate = document.querySelector('#success') as HTMLTemplateElemen
 const gallery = new Gallery(document.body);
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), eventEmitter);
 
+const cardPreview = new CardPreview(cloneTemplate(cardPreviewTemplate), eventEmitter)
+const basket = new BasketView(eventEmitter, cloneTemplate(basketTemplate));
+
 const orderForm = new Order(cloneTemplate(orderTemplate), eventEmitter);
 const contactsForm = new Contacts(cloneTemplate(contactsTemplate), eventEmitter);
 const successForm = new OrderSuccess(cloneTemplate(successTemplate), eventEmitter);
 
 eventEmitter.on('catalog:changed', () => {
   const itemCards = productsModel.getProducts().map((item) => {
+    item.image = CDN_URL + item.image;
     const card = new CardCatalog(cloneTemplate(cardCatalogTemplate), {
       onClick: () => eventEmitter.emit('card:select', item)
     });
@@ -61,25 +65,17 @@ eventEmitter.on('card:select', (item: IProduct) => {
 
 eventEmitter.on('selectedProduct:changed', (item: IProduct) => { 
 
-  var buttonName = "Купить";
-  var eventName = 'card:addBasket';
-  var buttonDisabled = false;
+  let buttonName = "Купить";
+  let buttonDisabled = false;
 
   if (basketModel.isProductInBusket(item.id)) {
     buttonName = "Удалить из корзины";
-    eventName = 'card:deleteFromBasket';
   }
 
   if (!item.price) {
     buttonDisabled = true;
     buttonName = "Недоступно";
   }
-
-  var action = {
-    onClick: () => eventEmitter.emit(eventName, {item: item, isNeedToCloseModal: true})
-  }
-
-  const cardPreview = new CardPreview(cloneTemplate(cardPreviewTemplate), action)
 
   modal.content = cardPreview.render({
     ...item,
@@ -90,69 +86,46 @@ eventEmitter.on('selectedProduct:changed', (item: IProduct) => {
   modal.open();
 });
 
-eventEmitter.on('card:addBasket', (data: {item: IProduct, isNeedToCloseModal: boolean}) => { 
-  basketModel.addProduct(data.item);
-  if (data.isNeedToCloseModal){
-    modal.close();
-  }  
+
+eventEmitter.on('cardPreview:buttonClick', () => {
+  const product = productsModel.getSelectedProduct();
+
+  if (basketModel.isProductInBusket(product!.id)) {
+    basketModel.deleteProduct(product!.id);
+  } else {
+    basketModel.addProduct(product!);
+  }
+  modal.close();
 });
 
 eventEmitter.on('card:deleteFromBasket', (data: {item: IProduct, isNeedToCloseModal: boolean}) => { 
-  console.log("eventEmitter.on('card:deleteFromBasket'");
   basketModel.deleteProduct(data.item.id);
-  console.log("isNeedToCloseModal: ", data.isNeedToCloseModal);
-  if (data.isNeedToCloseModal) {
-    modal.close();
-  } else {
-    const basketItems = basketModel.getProducts().map((item, index) => {
-      const basketItem = new CardBasket(cloneTemplate(cardBasketTemplate), { onClick: () => eventEmitter.emit('card:deleteFromBasket', {item: item, isNeedToCloseModal: false}) });
-      return basketItem.render({...item, index: index});
-    })
-  
-    const basket = new BasketView(eventEmitter, cloneTemplate(basketTemplate));
-    modal.content = basket.render({items: basketItems, total: basketModel.getTotalPrice() });
-    modal.render();
-  }
 });
 
 eventEmitter.on('basket:changed', () => { 
  header.render({counter: basketModel.getProductsCount()});
+
+ const basketItems = basketModel.getProducts().map((item, index) => {
+    const basketItem = new CardBasket(cloneTemplate(cardBasketTemplate), { onClick: () => eventEmitter.emit('card:deleteFromBasket', {item: item, isNeedToCloseModal: false}) });
+    return basketItem.render({...item, index: ++index});
+  })
+  basket.render({items: basketItems, total: basketModel.getTotalPrice() });
 });
 
 eventEmitter.on('basket:open', () => {
-  const basketItems = basketModel.getProducts().map((item, index) => {
-    const basketItem = new CardBasket(cloneTemplate(cardBasketTemplate), { onClick: () => eventEmitter.emit('card:deleteFromBasket', {item: item, isNeedToCloseModal: false}) });
-    return basketItem.render({...item, index: index});
-  })
-
-  const basket = new BasketView(eventEmitter, cloneTemplate(basketTemplate));
-  modal.content = basket.render({items: basketItems, total: basketModel.getTotalPrice() });
+  modal.content = basket.render();
   modal.render();
   modal.open();
 });
 
 eventEmitter.on('order:open', () => {
-  const buyerInfo = buyerModel.getBayerInfo();
-  var errors = [];
-  if (buyerModel.validatePayment()) {
-    errors.push(buyerModel.validatePayment())
-  }
-
-  if (buyerModel.validateAddress()) {
-    errors.push(buyerModel.validateAddress())
-  }
-
-  modal.content = orderForm.render({
-    ...buyerInfo,
-    valid: errors.length === 0,
-    errors: errors
-  });
+  modal.content = orderForm.render();
   modal.render();
 });
 
 eventEmitter.on('order:submit', () => {
   const buyerInfo = buyerModel.getBayerInfo();
-  var errors = [];
+  let errors = [];
   if (buyerModel.validateEmail()) {
     console.log("bad email")
     errors.push(buyerModel.validateEmail())
@@ -188,29 +161,19 @@ eventEmitter.on('contacts:submit', () => {
   communication.post(request)
   .then(result => {
      console.log(result)
-     eventEmitter.emit("order:success", result)
+     modal.content = successForm.render({
+      ...result
+    });
+    modal.render();
+    basketModel.clearProducts();
+    buyerModel.clear();
   })
   .catch(err => console.error(err));
 });
 
-eventEmitter.on('order:success', (result) => {
-  //появляется сообщение об успешной оплате, 
-  //товары удаляются из корзины, 
-  //данные покупателя очищаются.
-  
-  modal.content = successForm.render({
-    ...result
-  });
-  modal.render();
-  basketModel.clearProducts();
-  buyerModel.clear();
-});
-
-
 eventEmitter.on('success:close', () => { 
   modal.close();
 });
-
 
 eventEmitter.on('orderInput:change', (data: {field: keyof IBuyer, value: string }) => {
   console.log("field: ", data.field, "value: ", data.value)
@@ -226,14 +189,25 @@ eventEmitter.on('orderInput:change', (data: {field: keyof IBuyer, value: string 
 });
 
 eventEmitter.on('buyer:changed', (data: {field: string}) => {
+  const buyerInfo = buyerModel.getBayerInfo();
+  let errors: string[] = [];
+
   if (!data) {
-    console.log("eventEmitter.on buyer:changed clear")
+    orderForm.render({
+      ...buyerInfo,
+      valid: errors.length === 0,
+      errors: errors
+    });
+
+    contactsForm.render({
+      ...buyerInfo,
+      valid: errors.length === 0,
+      errors: errors
+    });
+
     return
   }
-  
-  console.log("eventEmitter.on buyer:changed ", data.field)
-  const buyerInfo = buyerModel.getBayerInfo();
-  var errors = [];
+
   if (data.field === "address" || data.field === "payment") {
     if (buyerModel.validatePayment()) {
       errors.push(buyerModel.validatePayment())

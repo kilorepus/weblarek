@@ -26,10 +26,11 @@ export class Basket extends Component<IBasket> {
 
     set items(items: HTMLElement[]) {
       if (items.length) {
-        this.basketListElement.replaceChildren(...items);
+        this.buttonElement.disabled = false;
       } else {
         this.buttonElement.disabled = true;
       }
+      this.basketListElement.replaceChildren(...items);
     }
 
     set total(total: number) {
